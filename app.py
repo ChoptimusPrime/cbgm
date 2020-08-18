@@ -54,6 +54,21 @@ def register_user():
     
     return render_template('register.html', form=form)
 
+@app.route('/login', methods=['GET', 'POST'])
+def login_user():
+    
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.authenticate_user(username=form.username.data, password=form.password.data)
+        if user:
+            session[USER_KEY] = user.id
+            flash("Authenticated!")
+            return redirect(f"/users/{user.id}")
+        else:
+            flash("Username or password incorrect")
+            return redirect("/login")
+    return render_template("login.html", form=form)
+
 @app.route('/users')
 def all_users():
     users = User.query.all()
@@ -61,6 +76,9 @@ def all_users():
 
 @app.route('/users/<int:user_id>')
 def show_user(user_id):
+    if not g.user:
+        flash("You must log in for access")
+        return redirect('/login')
     user = User.query.get(user_id)
     return render_template('user.html', user=user)
 
@@ -91,5 +109,14 @@ def add_card(user_id):
                 flash("Error adding card")
                 return redirect(request.url)
         return render_template("add-card.html", form=form)
+
+@app.route('/logout', methods=['POST'])
+def logout_user():
+
+    session.pop(USER_KEY)
+    flash("You have logged out!")
+    return redirect("/login")
+
+
 
 

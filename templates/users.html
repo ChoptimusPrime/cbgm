@@ -2,6 +2,7 @@
 
 {% block content %}
 {% for user in users %}
-{{user.username}}
+<p><a href="users/{{user.id}}">{{user.username}}</a></p>
+
 {% endfor %}
 {% endblock %}

@@ -6,5 +6,12 @@
 {% if g.user.id == user.id %}
 <a href="/users/{{user.id}}/add_card">Add to Collection</a>
 {% endif %}
-
+<h2>Collecton</h2>
+{% if user.cards %}
+<ul>
+{% for card in user.cards %}
+    <li>{{card.get_string_info()}}</li>
+{% endfor %}
+</ul>
+{% endif %}
 {% endblock %}

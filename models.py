@@ -21,7 +21,7 @@ class User(db.Model):
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
 
-    db.relationship("Card", backref="user", order_by="Card.year.desc()")
+    cards = db.relationship("Card", backref="user", order_by="Card.year.desc()")
 
     @classmethod
     def register(cls, username, password, email, first_name, last_name):
@@ -34,6 +34,16 @@ class User(db.Model):
                    email=email,
                    first_name=first_name,
                    last_name=last_name)
+
+    @classmethod
+    def authenticate_user(cls, username, password):
+
+        user = User.query.filter_by(username=username).first()
+
+        if user and bcrypt.check_password_hash(user.password, password):
+            return user
+        else:
+            return False
 
 class Card(db.Model):
 
