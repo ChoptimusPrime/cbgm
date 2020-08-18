@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{user.username}}</h1>
+<p>{{user.first_name}} {{user.last_name}}</p>
+{% if g.user.id == user.id %}
+<a href="/users/{{user.id}}/add_card">Add to Collection</a>
+{% endif %}
+
+{% endblock %}

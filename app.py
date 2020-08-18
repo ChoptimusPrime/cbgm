@@ -1,7 +1,9 @@
-from flask import Flask, render_template, redirect, flash, g, request
-from forms import LoginForm, RegisterForm
-from models import User, db, connect_db
+from flask import Flask, render_template, redirect, flash, g, request, session
+from forms import LoginForm, RegisterForm, CardForm
+from models import User, db, connect_db, Card
 from secrets import FLASK_SECRET
+
+USER_KEY = 'user_key'
 
 
 app = Flask(__name__)
@@ -14,8 +16,18 @@ app.config['SQLALCHEMY_ECHO'] = True
 connect_db(app)
 db.create_all()
 
+@app.before_request
+def add_user_to_g():
+
+    if USER_KEY in session:
+        g.user = User.query.get(session[USER_KEY])
+    else:
+        g.user = None
+
 @app.route('/')
 def index():
+    if g.user:
+        return redirect(f'/users/{g.user.id}')
     return redirect('/register')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -31,11 +43,53 @@ def register_user():
             db.session.add(new_user)
             try:
                 db.session.commit()
+                session[USER_KEY] = new_user.id
                 flash(f" Welcome {new_user.username}")
-                return redirect(request.url)
+                return redirect(f'users/{new_user.id}')
             except Exception as err:
                 db.session.rollback()
+                print(err)
                 flash("Error connecting to database")
                 return redirect(request.url)
     
     return render_template('register.html', form=form)
+
+@app.route('/users')
+def all_users():
+    users = User.query.all()
+    return render_template('users.html', users=users)
+
+@app.route('/users/<int:user_id>')
+def show_user(user_id):
+    user = User.query.get(user_id)
+    return render_template('user.html', user=user)
+
+@app.route('/users/<int:user_id>/add_card', methods=["GET", "POST"])
+def add_card(user_id):
+    if not g.user:
+        flash("You must be logged in for access")
+        return redirect("/register")
+    elif g.user.id != user_id:
+        flash("You can only add to your collection")
+        return redirect(f"/users/{g.user.id}")
+    else:
+        form = CardForm()
+        if form.validate_on_submit():
+            new_card = Card(owner_id=user_id, 
+                            player=form.player.data, 
+                            year=form.year.data, 
+                            set_name=form.set_name.data, 
+                            number=form.number.data, 
+                            parallel=form.parallel.data)
+            db.session.add(new_card)
+            try:
+                db.session.commit()
+                flash("Card successfully added")
+                return redirect(request.url)
+            except Exception as err:
+                db.session.rollback()
+                flash("Error adding card")
+                return redirect(request.url)
+        return render_template("add-card.html", form=form)
+
+

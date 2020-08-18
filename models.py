@@ -21,6 +21,8 @@ class User(db.Model):
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
 
+    db.relationship("Card", backref="user", order_by="Card.year.desc()")
+
     @classmethod
     def register(cls, username, password, email, first_name, last_name):
 
@@ -32,3 +34,25 @@ class User(db.Model):
                    email=email,
                    first_name=first_name,
                    last_name=last_name)
+
+class Card(db.Model):
+
+    __tablename__ = "cards"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete='cascade'), nullable=False)
+    player = db.Column(db.Text, nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    set_name = db.Column(db.Text, nullable=False)
+    number = db.Column(db.Text)
+    parallel = db.Column(db.Boolean, default=False)
+
+    def serialize(self):
+        return {'player'   : self.player,
+                'year'     : self.year,
+                'set_name' : self.set_name,
+                'number'   : self.number,
+                'parallel' : self.parallel}
+
+    def get_string_info(self):
+        return f"{self.year} {self.set_name} {self.number} {self.player}"
