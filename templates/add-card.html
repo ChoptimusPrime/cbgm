@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+{% if card_img_url %}
+<p>Current Card Image: </p>
+<img src="{{card_img_url}}" alt="">
+{% endif %}
 <form method='POST' enctype="multipart/form-data">
     {{ form.hidden_tag() }}
 
@@ -16,6 +21,6 @@
         {% endfor %}
     </p>
     {% endfor %}
-    <button class="btn btn-success" type="submit">Add Card</button>
+    <button class="btn btn-success" type="submit">{% if card_img_url %}Edit Card{% else %}Add Card{% endif %}</button>
 </form>
 {% endblock %}

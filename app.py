@@ -122,6 +122,27 @@ def add_card(user_id):
                 return redirect(request.url)
         return render_template("add-card.html", form=form)
 
+@app.route('/cards/<int:card_id>')
+def show_card(card_id):
+    card = Card.query.get_or_404(card_id)
+    return render_template('card.html', card=card)
+
+@app.route('/cards/<int:card_id>/edit', methods=['GET', 'POST'])
+def edit_card(card_id):
+    card = Card.query.get_or_404(card_id)
+    form = CardForm(obj=card)
+    if form.validate_on_submit():
+        form.populate_obj(card)
+        try:
+            db.session.commit()
+            flash("Card successfully updated")
+            return redirect(f'/cards/{card.id}')
+        except:
+            db.session.rollback()
+            flash("Error updating card")
+            return redirect(request.url)
+    return render_template('add-card.html', form=form, card_img_url=card.img_url)
+
 @app.route('/logout', methods=['POST'])
 def logout_user():
 

@@ -10,7 +10,7 @@
 {% if user.cards %}
 <ul>
 {% for card in user.cards %}
-    <li>{{card.get_string_info()}}</li>
+    <li><a href="/cards/{{card.id}}">{{card.get_string_info()}}</a></li>
 {% endfor %}
 </ul>
 {% endif %}

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{card.user.username}}</h2>
+<p>{{card.get_string_info()}}</p>
+{% if g.user.id == card.user.id %}
+<a href="/cards/{{card.id}}/edit">Edit Card</a>
+<img src="{{card.img_url}}" alt="Image of {{card.get_string_info()}}">
+{% endif %}
+{% endblock %}
