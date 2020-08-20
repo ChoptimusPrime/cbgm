@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField, BooleanField
+from wtforms import StringField, PasswordField, SelectField, BooleanField, FileField
 from wtforms.validators import InputRequired, Email, Length, EqualTo, Optional
 
 EARLIEST_YEAR = 1888
@@ -23,3 +23,4 @@ class CardForm(FlaskForm):
     set_name = StringField("Set", validators=[InputRequired()])
     number = StringField("Number")
     parallel = BooleanField("Parallel")
+    img = FileField("Upload Image", validators=[Optional()])

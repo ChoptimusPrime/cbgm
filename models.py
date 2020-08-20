@@ -56,6 +56,7 @@ class Card(db.Model):
     set_name = db.Column(db.Text, nullable=False)
     number = db.Column(db.Text)
     parallel = db.Column(db.Boolean, default=False)
+    img_url = db.Column(db.Text, default=None)
 
     def serialize(self):
         return {'player'   : self.player,

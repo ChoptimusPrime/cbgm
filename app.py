@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, flash, g, request, session
 from forms import LoginForm, RegisterForm, CardForm
 from models import User, db, connect_db, Card
+from constants import S3, AWS_BUCKET
 from secrets import FLASK_SECRET
 
 USER_KEY = 'user_key'
@@ -102,6 +103,17 @@ def add_card(user_id):
             db.session.add(new_card)
             try:
                 db.session.commit()
+                if form.img.data:
+                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    img_data = request.files[form.img.name].read()
+                    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                    print(img_data)
+                    file_key = f"card_images/{g.user.id}/{new_card.id}.jpg"
+                    response = S3.put_object(Body=img_data, Bucket=AWS_BUCKET, Key=file_key, ACL="public-read")
+                    print(response)
+                    img_url = f"https://cardboardgmpics.s3-us-west-2.amazonaws.com/{file_key}"
+                    new_card.img_url = img_url
+                    db.session.commit()
                 flash("Card successfully added")
                 return redirect(request.url)
             except Exception as err:
