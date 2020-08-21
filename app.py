@@ -3,6 +3,7 @@ from forms import LoginForm, RegisterForm, CardForm
 from models import User, db, connect_db, Card
 from constants import S3, AWS_BUCKET
 from secrets import FLASK_SECRET
+from ebay_api import get_recent_prices
 
 USER_KEY = 'user_key'
 
@@ -149,6 +150,14 @@ def logout_user():
     session.pop(USER_KEY)
     flash("You have logged out!")
     return redirect("/login")
+
+@app.route('/api/cards/<int:card_id>/prices')
+def get_ebay_json(card_id):
+    card = Card.query.get_or_404(card_id)
+    info = card.get_string_info()
+    json = get_recent_prices(info)
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", json)
+    return json
 
 
 
